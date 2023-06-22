@@ -1,0 +1,8 @@
+nginx/certs/*
+*.env
+mongo/mongo-data
+mongo/express
+mongo_express
+mosquitto/data
+mosquitto/log
+

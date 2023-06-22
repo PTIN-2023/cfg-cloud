@@ -1,0 +1,87 @@
+version: '3.2'
+services:
+  # PROXY
+  nginx:
+    image: nginx
+    volumes:
+      - ./nginx/certs:/etc/ssl/certs
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./nginx/snippets:/etc/nginx/snippets
+    ports:
+      - 4433:443
+    restart: unless-stopped
+
+  # DATABASE
+  mongo:
+    image: mongo:4.2
+    container_name: bd
+    ports:
+      - "27017:27017"
+    env_file:
+      - mongo.env
+    command: --quiet
+    restart: unless-stopped
+    volumes:
+     - ./mongo/mongo-data:/data/db
+     - ./mongo/mongo-configdb:/data/configdb
+     - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+
+  # DATABASE WEB
+  mongo_express:
+    image: mongo-express
+    container_name: mongo_express
+    volumes:
+      - ./mongo_express:/data
+    ports:
+      - "8081:8081"
+    env_file:
+      - mongo_express.env
+    depends_on:
+      - mongo
+
+  # API
+  api:
+    image: rabadandotdev/trans-med-api-ptin
+    container_name: api
+    ports:
+      - "5000:5000"
+    env_file:
+      - api.env
+    depends_on:
+      - mongo
+
+  # WEB BACKEND
+  nextjs:
+    image: rabadandotdev/trans-med-web-ptin
+    container_name: nextjs
+    ports:
+      - "3000:3000"
+    env_file:
+      - nextjs.env
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # MQTT SERVER
+  mosquitto:
+    container_name: mosquitto-mqtt
+    image: eclipse-mosquitto:latest
+    volumes:
+      - ./mosquitto:/mosquitto/
+    ports:
+      - '1883:1883'
+      - '8883:8883'
+    environment:
+      TZ: 'Europe/Berlin'
+    restart: always
+
+  # MQTT WATCHDOG
+  mqtt-subscriber:
+    image: rabadandotdev/trans-med-mqttsub-ptin
+    container_name: mqtt-subscriber
+    env_file:
+      - mqtt-subscriber.env
+    depends_on:
+      - mosquitto
+    ports:
+    - "4000:4000"
