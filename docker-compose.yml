@@ -2,13 +2,15 @@ version: '3.2'
 services:
   # PROXY
   nginx:
-    image: nginx
+    image: nginx:1.19-alpine
     volumes:
       - ./nginx/certs:/etc/ssl/certs
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./nginx/templates:/etc/nginx/templates/
       - ./nginx/snippets:/etc/nginx/snippets
+    env_file:
+      - nginx.env
     ports:
-      - 4433:443
+      - ${NGINX_EXTERNAL_PORT}:443
     restart: unless-stopped
 
   # DATABASE
@@ -16,7 +18,7 @@ services:
     image: mongo:4.2
     container_name: bd
     ports:
-      - "27017:27017"
+      - ${MONGO_EXTERNAL_PORT}:27017
     env_file:
       - mongo.env
     command: --quiet
@@ -33,7 +35,7 @@ services:
     volumes:
       - ./mongo_express:/data
     ports:
-      - "8081:8081"
+      - ${MONGO_EXPRESS_EXTERNAL_PORT}:8081"
     env_file:
       - mongo_express.env
     depends_on:
@@ -44,7 +46,7 @@ services:
     image: rabadandotdev/trans-med-api-ptin
     container_name: api
     ports:
-      - "5000:5000"
+      - ${API_EXTERNAL_PORT}:5000"
     env_file:
       - api.env
     depends_on:
@@ -55,7 +57,7 @@ services:
     image: rabadandotdev/trans-med-web-ptin
     container_name: nextjs
     ports:
-      - "3000:3000"
+      - ${NEXTJS_EXTERNAL_PORT}:3000
     env_file:
       - nextjs.env
     depends_on:
@@ -68,9 +70,11 @@ services:
     image: eclipse-mosquitto:latest
     volumes:
       - ./mosquitto:/mosquitto/
+    env_file:
+      - mosquitto.env
     ports:
-      - '1883:1883'
-      - '8883:8883'
+      - ${MOSQUITTO_EXTERNAL_PORT}:1883
+      - ${MOSQUITTO_EXTERNAL_PORT_SECURE}:8883
     environment:
       TZ: 'Europe/Berlin'
     restart: always
@@ -84,4 +88,4 @@ services:
     depends_on:
       - mosquitto
     ports:
-    - "4000:4000"
+    - ${MQTT_SUBSCRIBER_EXTERNAL_PORT}:4000
