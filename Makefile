@@ -46,6 +46,6 @@ logs-nextjs:
 logs-mosquitto:
 	docker-compose logs --tail 100 -f mosquitto
 
-.PHONY: docker-logs-mqtt-subscriber
+.PHONY: logs-mqtt-subscriber
 logs-mqtt-subscriber:
 	docker-compose logs --tail 100 -f mqtt-subscriber
