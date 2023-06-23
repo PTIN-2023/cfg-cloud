@@ -5,13 +5,13 @@ server {
 
   server_name _;
 
-  return 301 http://$host:24143$request_uri;
+  return 301 http://$host:${NGINX_SECURE_PORT}$request_uri;
 }
 
 # Web/api
 server {
   # Domain
-  server_name cloud.ptin2023.*;
+  server_name ${NGINX_WEB_API_SERVERNAME};
 
   # Listen address
   listen 443 ssl;
@@ -24,25 +24,25 @@ server {
 
   # Locations web
   location / {
-    proxy_pass        http://nextjs:3000;
+    proxy_pass        ${NGINX_WEB_URL};
     proxy_redirect    default;
   }
   location /api/update_order_cars {
-    proxy_pass        http://nextjs:3000;
+    proxy_pass        ${NGINX_WEB_URL};
     proxy_redirect    default;
   }
   location /api/update_order_drones {
-    proxy_pass        http://nextjs:3000;
+    proxy_pass        ${NGINX_WEB_URL};
     proxy_redirect    default;
   }
   location /api/generate_map_route {
-    proxy_pass        http://nextjs:3000;
+    proxy_pass        ${NGINX_WEB_URL};
     proxy_redirect    default;
   }
 
   # Locations api
   location /api {
-    proxy_pass        http://api:5000;
+    proxy_pass        ${NGINX_API_URL};
     proxy_redirect    default;
   }
 }
@@ -50,7 +50,7 @@ server {
 # Database site
 server {
   # Domain
-  server_name db.cloud.ptin2023.*;
+  server_name ${NGINX_DBW_SERVERNAME};
 
   # Listen address
   listen 443 ssl;
@@ -65,7 +65,7 @@ server {
   location / {
     proxy_set_header Authorization $http_authorization;
     proxy_pass_header  Authorization;
-    proxy_pass http://192.168.80.241:8081;
+    proxy_pass ${NGINX_DBW_URL};
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -75,7 +75,7 @@ server {
 # MQTT websockets
 server {
   # Domain
-  server_name mq.cloud.ptin2023.*;
+  server_name ${NGINX_MQTT_SERVERNAME};
 
   # Listen address
   listen 443 ssl;
@@ -88,7 +88,7 @@ server {
 
   # Proxy
   location / {
-    proxy_pass https://mosquitto:8883;
+    proxy_pass ${NGINX_MQTT_URL};
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
