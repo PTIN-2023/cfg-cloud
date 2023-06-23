@@ -75,8 +75,6 @@ services:
     ports:
       - ${MOSQUITTO_EXTERNAL_PORT}:1883
       - ${MOSQUITTO_EXTERNAL_PORT_SECURE}:8883
-    environment:
-      TZ: 'Europe/Berlin'
     restart: always
 
   # MQTT WATCHDOG
