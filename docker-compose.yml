@@ -81,3 +81,11 @@ services:
       - mosquitto
     ports:
     - ${MQTT_SUBSCRIBER_EXTERNAL_PORT}:4000
+
+  # Virtual vehicles
+  vvehicles:
+    image: rabadandotdev/trans-med-v${VVEHICLE_KIND}-ptin
+    env_file:
+      - vvehicle.env
+    depends_on:
+      - mosquitto
