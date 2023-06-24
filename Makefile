@@ -49,3 +49,7 @@ logs-mosquitto:
 .PHONY: logs-mqtt-subscriber
 logs-mqtt-subscriber:
 	docker-compose logs --tail 100 -f mqtt-subscriber
+
+.PHONY: logs-vvehicles
+logs-vvehicles:
+	docker-compose logs --tail 100 -f vvehicles
